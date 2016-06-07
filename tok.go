@@ -155,6 +155,8 @@ type Token struct {
 	Value   []byte   `xml:"value", json:"value"`
 }
 
+type Tokenizer func(*Token, []byte) (*Token, []byte)
+
 func (t *Token) String() string {
 	return fmt.Sprintf("<%s> = %q", t.Type, t.Value)
 }
@@ -212,4 +214,9 @@ func Tok(buf []byte) (*Token, []byte) {
 		}, buf
 	}
 	return nil, buf
+}
+
+func Tok2(buf []byte, fn Tokenizer) (*Token, []byte) {
+	tok, rest := Tok(buf)
+	return fn(tok, rest)
 }
