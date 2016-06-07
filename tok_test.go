@@ -93,7 +93,7 @@ func TestTok(t *testing.T) {
 	src1, _ = ioutil.ReadFile(fname1)
 	for i, expectedType := range expected {
 		token, src1 = Tok2(src1, func(t *Token, b []byte) (*Token, []byte) {
-			// This is just a pass thru function, normally you'd add additional analysis
+			// This is just a pass through function, normally you'd add additional analysis
 			return t, b
 		})
 		// fmt.Printf("DEBUG i: %d, token: %s, expectedType: %s, src1: %s\n", i, token, expectedType, src1)
