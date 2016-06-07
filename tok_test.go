@@ -34,7 +34,9 @@
 package tok
 
 import (
-	"fmt"
+	"io/ioutil"
+	"path"
+	"strings"
 	"testing"
 )
 
@@ -53,26 +55,53 @@ func TestPunctuation(t *testing.T) {
 	}
 }
 
-func TestParse(t *testing.T) {
+func TestTok(t *testing.T) {
+	// Test Tok()
+	fname1 := path.Join("testdata", "sample-0.txt")
+	src1, err := ioutil.ReadFile(fname1)
+	if err != nil {
+		t.Errorf("%s, %s", fname1, err)
+		t.FailNow()
+	}
+	// FIXME: Load expected-0.txt to compare token types.
+	fname2 := path.Join("testdata", "expected-0.txt")
+	src2, err := ioutil.ReadFile(fname2)
+	if err != nil {
+		t.Errorf("%s, %s", fname2, err)
+		t.FailNow()
+	}
+	expected := strings.Split(strings.TrimSpace(string(src2)), "\n")
+
 	// FIXME: Need to create a tokenizing function which takes a buffer and token mapping and produces a token structure
 	// with a type field and the value of the token.
-	src := []byte(`This is a test of the emergency broadcast system. It is only
-a test. Should this be an actual emergency then this message
-would be followed by instructions. Get it?
-`)
-	token := new(Token)
-	l := len(src)
-	for {
-		l = len(src)
-		token, src = Tok(src)
-		if l != len(src)+1 {
-			t.Errorf("Failed to shrink src: %s", src)
-			t.FailNow()
-		}
-		fmt.Printf("DEBUG Tok: %s <-- %s\n", token, src)
-		if l == 1 {
-			break
+	var (
+		token *Token
+		i     int
+	)
+	for i, expectedType := range expected {
+		token, src1 = Tok(src1)
+		// fmt.Printf("DEBUG i: %d, token: %s, expectedType: %s, src1: %s\n", i, token, expectedType, src1)
+		if strings.Compare(token.Type, strings.TrimSpace(expectedType)) != 0 {
+			t.Errorf("%d: %s != %s", i, token, expectedType)
 		}
 	}
+	if len(src1) != 0 {
+		t.Errorf("Expected to have len(src1) == 1, %d", i)
+	}
 
+	// Test Tok2()
+	src1, err = ioutil.ReadFile(fname1)
+	for i, expectedType := range expected {
+		token, src1 = Tok2(src1, func(t *Token, b []byte) (*Token, []byte) {
+			// This is just a pass thru function, normally you'd add additional analysis
+			return t, b
+		})
+		// fmt.Printf("DEBUG i: %d, token: %s, expectedType: %s, src1: %s\n", i, token, expectedType, src1)
+		if strings.Compare(token.Type, strings.TrimSpace(expectedType)) != 0 {
+			t.Errorf("%d: %s != %s", i, token, expectedType)
+		}
+	}
+	if len(src1) != 0 {
+		t.Errorf("Expected to have len(src1) == 1, %d", i)
+	}
 }

@@ -186,11 +186,7 @@ func Tok(buf []byte) (*Token, []byte) {
 			Value: []byte(""),
 		}, nil
 	}
-	if len(buf) == 1 {
-		s = buf
-	} else {
-		s, buf = buf[0:1], buf[1:]
-	}
+	s, buf = buf[0:1], buf[1:]
 	switch {
 	case IsPunctuation(s) == true:
 		return &Token{
