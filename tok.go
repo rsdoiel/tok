@@ -151,8 +151,8 @@ var (
 
 type Token struct {
 	XMLName xml.Name `json:"-"`
-	Type    string   `xml:"type", json:"type"`
-	Value   []byte   `xml:"value", json:"value"`
+	Type    string   `xml:"type" json:"type"`
+	Value   []byte   `xml:"value" json:"value"`
 }
 
 type Tokenizer func(*Token, []byte) (*Token, []byte)
@@ -209,7 +209,6 @@ func Tok(buf []byte) (*Token, []byte) {
 			Value: s,
 		}, buf
 	}
-	return nil, buf
 }
 
 func Tok2(buf []byte, fn Tokenizer) (*Token, []byte) {
