@@ -90,7 +90,7 @@ func TestTok(t *testing.T) {
 	}
 
 	// Test Tok2()
-	src1, err = ioutil.ReadFile(fname1)
+	src1, _ = ioutil.ReadFile(fname1)
 	for i, expectedType := range expected {
 		token, src1 = Tok2(src1, func(t *Token, b []byte) (*Token, []byte) {
 			// This is just a pass thru function, normally you'd add additional analysis
