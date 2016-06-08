@@ -34,171 +34,30 @@
 package tok
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 )
 
 const (
-	// Punctuation Marks
+	Version = "0.0.0"
 
-	// Tilda as string
-	Tilda = "~"
-	// Bang as string
-	Bang = "!"
-	// AtSign as string
-	AtSign = "@"
-	// HashMark as string
-	HashMark = "#"
-	// DollarSign as string
-	DollarSign = "$"
-	// PercentSign as string
-	PercentSign = "%"
-	// Caret as string
-	Caret = "^"
-	// Ampersand as string
-	Ampersand = "&"
-	// Asterisk as string
-	Asterisk = "*"
-	// OpenParen as string
-	OpenParen = "("
-	// CloseParen as string
-	CloseParen = ")"
-	// MinusSign as string
-	MinusSign = "-"
-	// PlusSign as string
-	PlusSign = "+"
-	// BackTick as string
-	BackTick = "`"
-	// Underscore as string
-	Underscore = "_"
-	// EqualSign as string
-	EqualSign = "="
-	// OpenCurly (brackets) as string
-	OpenCurly = "{"
-	// CloseCurly (brackets) as string
-	CloseCurly = "}"
-	// Pipe symbol as string
-	Pipe = "|"
-	// OpenSquare (brackets) as string
-	OpenSquare = "["
-	// CloseSquare (brackets) as string
-	CloseSquare = "]"
-	// BackSlash as string
-	BackSlash = "\\"
-	// Colon as string
-	Colon = ":"
-	// SemiColon as string
-	SemiColon = ";"
-	// DoubleQuote as string
-	DoubleQuote = "\""
-	// SingleQuote as string
-	SingleQuote = "'"
-	// GreaterThan (sign) as string
-	GreaterThan = ">"
-	// LessThan (sign) as string
-	LessThan = "<"
-	// QuestionMark as string
-	QuestionMark = "?"
-	// Comma as string
-	Comma = ","
-	// Period as string
-	Period = "."
-	// Slash as string
-	Slash = "/"
-
-	// Spaces
-
-	// Space as string
-	Space = " "
-	// Tab as string
-	Tab = "\t"
-	// CR (Carriage Return) as string
-	CR = "\r"
-	// LF (Line Feed) as string
-	LF = "\n"
-
-	// Numerals
-
-	// Zero as string
-	Zero = "0"
-	// One as string
-	One = "1"
-	// Two as string
-	Two = "2"
-	// Three as string
-	Three = "3"
-	// Four as string
-	Four = "4"
-	// Five as string
-	Five = "5"
-	// Six as string
-	Six = "6"
-	// Seven as string
-	Seven = "7"
-	// Eight as string
-	Eight = "8"
-	// Nine as string
-	Nine = "9"
+	// Base token types
+	Letter      = "Letter"
+	Numeral     = "Numeral"
+	Punctuation = "Punctuation"
+	Space       = "Space"
 )
 
 var (
 	// Numerals is a map of numbers as strings
-	Numerals = map[string]string{
-		Zero:  "0",
-		One:   "1",
-		Two:   "2",
-		Three: "3",
-		Four:  "4",
-		Five:  "5",
-		Six:   "6",
-		Seven: "7",
-		Eight: "8",
-		Nine:  "9",
-	}
+	Numerals = []byte("0123456789")
 
 	// Spaces is a map space symbols as strings
-	Spaces = map[string]string{
-		Space: " ",
-		Tab:   "\t",
-		CR:    "\r",
-		LF:    "\n",
-	}
+	Spaces = []byte(" \t\r\n")
 
 	// PunctuationMarks map as strings
-	PunctuationMarks = map[string]string{
-		Tilda:        "~",
-		Bang:         "!",
-		AtSign:       "@",
-		HashMark:     "#",
-		DollarSign:   "$",
-		PercentSign:  "%",
-		Caret:        "^",
-		Ampersand:    "&",
-		Asterisk:     "*",
-		OpenParen:    "(",
-		CloseParen:   ")",
-		MinusSign:    "-",
-		PlusSign:     "+",
-		BackTick:     "`",
-		Underscore:   "_",
-		EqualSign:    ":",
-		OpenCurly:    "{",
-		CloseCurly:   "}",
-		Pipe:         "|",
-		OpenSquare:   "[",
-		CloseSquare:  "]",
-		BackSlash:    "\\",
-		Colon:        ":",
-		SemiColon:    ";",
-		DoubleQuote:  "\"",
-		SingleQuote:  "'",
-		GreaterThan:  ">",
-		LessThan:     "<",
-		QuestionMark: "?",
-		Comma:        ",",
-		Period:       ".",
-		Slash:        "/",
-	}
+	PunctuationMarks = []byte("~!@#$%^&*()-+`_:{}|[]\\:;\"'><?,./")
 )
 
 // Token structure for emitting simply tokens and value from Tok() and Tok2()
@@ -218,20 +77,17 @@ func (t *Token) String() string {
 
 // IsSpace checks to see if []byte is a space or not
 func IsSpace(b []byte) bool {
-	_, ok := Spaces[string(b)]
-	return ok
+	return bytes.Contains(Spaces, b)
 }
 
 // IsPunctuation checks to see if []byte is some punctuation or not
 func IsPunctuation(b []byte) bool {
-	_, ok := PunctuationMarks[string(b)]
-	return ok
+	return bytes.Contains(PunctuationMarks, b)
 }
 
 // IsNumeral checks to see if []byte is a number or not
 func IsNumeral(b []byte) bool {
-	_, ok := Numerals[string(b)]
-	return ok
+	return bytes.Contains(Numerals, b)
 }
 
 // Tok is a naive tokenizer that looks only at the next character by shifting it off the []byte and returning a token found with remaining []byte
@@ -249,22 +105,22 @@ func Tok(buf []byte) (*Token, []byte) {
 	switch {
 	case IsPunctuation(s) == true:
 		return &Token{
-			Type:  "Punctuation",
+			Type:  Punctuation,
 			Value: s,
 		}, buf
 	case IsSpace(s) == true:
 		return &Token{
-			Type:  "Space",
+			Type:  Space,
 			Value: s,
 		}, buf
 	case IsNumeral(s) == true:
 		return &Token{
-			Type:  "Numeric",
+			Type:  Numeral,
 			Value: s,
 		}, buf
 	default:
 		return &Token{
-			Type:  "Alpha",
+			Type:  Letter,
 			Value: s,
 		}, buf
 	}
