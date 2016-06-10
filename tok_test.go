@@ -34,6 +34,7 @@
 package tok
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path"
 	"strings"
@@ -57,14 +58,15 @@ func TestPunctuation(t *testing.T) {
 
 func TestTok(t *testing.T) {
 	// Test Tok()
-	fname1 := path.Join("testdata", "sample-0.txt")
+	fname1 := path.Join("testdata", "sample-00.txt")
+	fname2 := path.Join("testdata", "expected-00.txt")
+
 	src1, err := ioutil.ReadFile(fname1)
 	if err != nil {
 		t.Errorf("%s, %s", fname1, err)
 		t.FailNow()
 	}
 	// FIXME: Load expected-0.txt to compare token types.
-	fname2 := path.Join("testdata", "expected-0.txt")
 	src2, err := ioutil.ReadFile(fname2)
 	if err != nil {
 		t.Errorf("%s, %s", fname2, err)
@@ -102,6 +104,37 @@ func TestTok(t *testing.T) {
 		}
 	}
 	if len(src1) != 0 {
-		t.Errorf("Expected to have len(src1) == 1, %d", i)
+		t.Errorf("Expected to have len(src1) == 1, %d [%s]", i, src1)
+	}
+}
+
+func TestTokWords(t *testing.T) {
+	fname1 := path.Join("testdata", "sample-01.txt")
+	fname2 := path.Join("testdata", "expected-01.txt")
+
+	src1, err := ioutil.ReadFile(fname1)
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+	src2, err := ioutil.ReadFile(fname2)
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	expected := strings.Split(strings.TrimSpace(string(src2)), "\n")
+	var (
+		token *Token
+		i     int
+	)
+	for i, expectedType := range expected {
+		token, src1 = Tok2(src1, TokWords)
+		if strings.Compare(token.Type, strings.TrimSpace(expectedType)) != 0 {
+			t.Errorf("%d: %s != %s", i, token, expectedType)
+		}
+	}
+	if len(src1) != 0 {
+		t.Errorf("Expected to have len(src1) == 1, %d [%s]", i, src1)
 	}
 }

@@ -131,3 +131,17 @@ func Tok2(buf []byte, fn Tokenizer) (*Token, []byte) {
 	tok, rest := Tok(buf)
 	return fn(tok, rest)
 }
+
+// TokWords is an example of implementing a Tokenizer function
+func TokWords(tok *Token, buf []byte) (*Token, []byte) {
+	if tok.Type == Letter || tok.Type == "Word" {
+		// Get the next Token
+		newTok, newBuf := Tok(buf)
+		if newTok.Type == Letter {
+			tok.Type = "Word"
+			tok.Value = append(tok.Value, newTok.Value[0])
+			tok, buf = TokWords(tok, newBuf)
+		}
+	}
+	return tok, buf
+}
