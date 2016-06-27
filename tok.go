@@ -150,22 +150,35 @@ func (t *Token) String() string {
 
 // IsSpace checks to see if []byte is a space or not
 func IsSpace(b []byte) bool {
-	return bytes.Contains(Spaces, b)
+	for _, val := range b {
+		if bytes.IndexByte(Spaces, val) == -1 {
+			return false
+		}
+	}
+	return true
 }
 
 // IsPunctuation checks to see if []byte is some punctuation or not
 func IsPunctuation(b []byte) bool {
-	return bytes.Contains(PunctuationMarks, b)
+	for _, val := range b {
+		if bytes.IndexByte(PunctuationMarks, val) == -1 {
+			return false
+		}
+	}
+	return true
 }
 
 // IsNumeral checks to see if []byte is a number or not
 func IsNumeral(b []byte) bool {
-	return bytes.Contains(Numerals, b)
-}
-
-// IsTypeOf checks to see if a []byte is a specific type
-func IsTypeOf(b []byte, typeMap []byte) bool {
-	return bytes.Contains(typeMap, b)
+	if bytes.Count(b, []byte(".")) > 1 {
+		return false
+	}
+	for _, val := range b {
+		if bytes.IndexByte([]byte("0123456789."), val) == -1 {
+			return false
+		}
+	}
+	return true
 }
 
 // Tok is a naive tokenizer that looks only at the next character by shifting it off the []byte and returning a token found with remaining []byte
@@ -242,21 +255,29 @@ func Words(tok *Token, buf []byte) (*Token, []byte) {
 }
 
 // Bib is an example of a niave BibTeX Tokenizer function
+// Note the English bias in the AlphaNumeric check
 func Bib(tok *Token, buf []byte) (*Token, []byte) {
 	switch {
 	case tok.Type == AtSign || tok.Type == "BibElement":
 		// Get the next Token
 		newTok, newBuf := Tok(buf)
-		if newTok.Type == Letter {
+		if newTok.Type != OpenCurlyBracket {
 			tok.Type = "BibElement"
 			tok.Value = append(tok.Value, newTok.Value[0])
 			tok, buf = Bib(tok, newBuf)
 		}
-	case tok.Type == Letter || tok.Type == Word:
+	case tok.Type == Space:
+		newTok, newBuf := Tok(buf)
+		if newTok.Type == Space {
+			tok.Value = append(tok.Value, newTok.Value[0])
+			tok, buf = Bib(tok, newBuf)
+		}
+	case tok.Type == Letter || tok.Type == Numeral || tok.Type == "AlphaNumeric":
+		// Convert Letters and Numerals to AlphaNumeric Type.
+		tok.Type = "AlphaNumeric"
 		// Get the next Token
 		newTok, newBuf := Tok(buf)
-		if newTok.Type == Letter {
-			tok.Type = Word
+		if newTok.Type == Letter || newTok.Type == Numeral {
 			tok.Value = append(tok.Value, newTok.Value[0])
 			tok, buf = Bib(tok, newBuf)
 		}
