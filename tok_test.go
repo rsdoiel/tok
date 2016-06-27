@@ -108,7 +108,7 @@ func TestTok(t *testing.T) {
 	}
 }
 
-func TestTokWords(t *testing.T) {
+func TestWords(t *testing.T) {
 	fname1 := path.Join("testdata", "sample-01.txt")
 	fname2 := path.Join("testdata", "expected-01.txt")
 
@@ -129,7 +129,7 @@ func TestTokWords(t *testing.T) {
 		i     int
 	)
 	for i, expectedType := range expected {
-		token, src1 = Tok2(src1, TokWords)
+		token, src1 = Tok2(src1, Words)
 		if strings.Compare(token.Type, strings.TrimSpace(expectedType)) != 0 {
 			t.Errorf("%d: %s != %s", i, token, expectedType)
 		}
