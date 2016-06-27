@@ -40,13 +40,19 @@ import (
 )
 
 const (
+	// Version of  tok package
 	Version = "0.0.0"
 
-	// Base token types
-	Letter      = "Letter"
-	Numeral     = "Numeral"
+	//Base token typese
+
+	// Letter is an alphabetical letter (e.g. A-Z, a-z in English)
+	Letter = "Letter"
+	// Numeral is a number (e.g. 1, 1.1) with up to one period, does not include fractional notation (E.g. 1/2, 3/4)
+	Numeral = "Numeral"
+	// Any non-number, non alphametical character, non-space (e.g. periods, colons, bang, hash mark)
 	Punctuation = "Punctuation"
-	Space       = "Space"
+	// Space characters representing white space (e.g. space, tab, new line, carriage return)
+	Space = "Space"
 )
 
 var (

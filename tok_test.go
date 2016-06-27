@@ -34,7 +34,7 @@
 package tok
 
 import (
-	"fmt"
+	//"fmt"
 	"io/ioutil"
 	"path"
 	"strings"
