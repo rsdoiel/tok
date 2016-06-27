@@ -209,11 +209,16 @@ func Tok(buf []byte) (*Token, []byte) {
 func TokenFromMap(t *Token, m map[string][]byte) *Token {
 	for k, v := range m {
 		if bytes.Contains(v, t.Value) {
-			t.Type = k
-			return t
+			return &Token{
+				Type:  k,
+				Value: t.Value,
+			}
 		}
 	}
-	return t
+	return &Token{
+		Type:  t.Type,
+		Value: t.Value,
+	}
 }
 
 // Tok2 provides an easy to implement look ahead tokenizer by defining a look ahead function
