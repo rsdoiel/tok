@@ -138,34 +138,3 @@ func TestWords(t *testing.T) {
 		t.Errorf("Expected to have len(src1) == 1, %d [%s]", i, src1)
 	}
 }
-
-func TestBib(t *testing.T) {
-	fname1 := path.Join("testdata", "sample-02.txt")
-	fname2 := path.Join("testdata", "expected-02.txt")
-
-	src1, err := ioutil.ReadFile(fname1)
-	if err != nil {
-		t.Error(err)
-		t.FailNow()
-	}
-	src2, err := ioutil.ReadFile(fname2)
-	if err != nil {
-		t.Error(err)
-		t.FailNow()
-	}
-
-	expected := strings.Split(strings.TrimSpace(string(src2)), "\n")
-	var (
-		token *Token
-		i     int
-	)
-	for i, expectedType := range expected {
-		token, src1 = Tok2(src1, Bib)
-		if strings.Compare(token.Type, strings.TrimSpace(expectedType)) != 0 {
-			t.Errorf("%d: %s != %s", i, token, expectedType)
-		}
-	}
-	if len(src1) != 0 {
-		t.Errorf("Expected to have len(src1) == 1, %d [%s]", i, src1)
-	}
-}
