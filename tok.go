@@ -291,6 +291,90 @@ func Skip2(tokenType string, buf []byte, fn Tokenizer) ([]byte, *Token, []byte) 
 	return skipped, token, buf
 }
 
+// Peek generates a token without consuming the buffer
+func Peek(buf []byte) *Token {
+	var (
+		s []byte
+	)
+	if len(buf) == 0 {
+		return &Token{
+			Type:  EOF,
+			Value: []byte(""),
+		}
+	}
+	s = buf[0:1]
+	switch {
+	case IsPunctuation(s) == true:
+		return &Token{
+			Type:  Punctuation,
+			Value: s,
+		}
+	case IsSpace(s) == true:
+		return &Token{
+			Type:  Space,
+			Value: s,
+		}
+	case IsNumeral(s) == true:
+		return &Token{
+			Type:  Numeral,
+			Value: s,
+		}
+	default:
+		return &Token{
+			Type:  Letter,
+			Value: s,
+		}
+	}
+}
+
+// Between returns the buf between two delimiters (e.g. curly braces)
+func Between(openValue []byte, closeValue []byte, escapeValue []byte, buf []byte) ([]byte, []byte, error) {
+	var (
+		between        []byte
+		hasEscapeValue bool
+		token          *Token
+	)
+
+	if len(escapeValue) > 0 {
+		hasEscapeValue = true
+	}
+
+	quoteCount := 0
+	// Advance to start of Between token types
+	if len(buf) == 0 {
+		return between, buf, fmt.Errorf("missing opening %s", openValue)
+	}
+	for {
+		if len(buf) == 0 {
+			return between, buf, fmt.Errorf("missing closing %s", closeValue)
+		}
+		token, buf = Tok(buf)
+		switch {
+		case hasEscapeValue == true && bytes.Equal(escapeValue, token.Value):
+			between = append(between[:], token.Value[:]...)
+			token, buf = Tok(buf)
+			between = append(between[:], token.Value[:]...)
+		case bytes.Equal(openValue, token.Value):
+			quoteCount++
+			if quoteCount > 1 {
+				between = append(between[:], token.Value[:]...)
+			}
+		case bytes.Equal(closeValue, token.Value):
+			quoteCount--
+			if quoteCount == 0 {
+				return between, buf, nil
+			}
+			between = append(between[:], token.Value[:]...)
+		default:
+			if quoteCount > 0 {
+				between = append(between[:], token.Value[:]...)
+			}
+		}
+	}
+
+	return between, buf, nil
+}
+
 // Backup pushes a Token back onto the front of a Buffer
 func Backup(token *Token, buf []byte) []byte {
 	return append(token.Value[:], buf[:]...)

@@ -268,3 +268,61 @@ func TestBackup(t *testing.T) {
 		t.Errorf("Buffer should be restored to \"12\", length %d -> [%s]", len(buf), buf)
 	}
 }
+
+func TestPeek(t *testing.T) {
+	buf := []byte(`1 o.`)
+	expectedTypes := []string{
+		Numeral,
+		Space,
+		Letter,
+		Punctuation,
+	}
+	expectedValues := []string{
+		"1",
+		" ",
+		"o",
+		".",
+	}
+	for i, expected := range expectedTypes {
+		token := Peek(buf)
+		if token.Type != expected {
+			t.Errorf("%d Peek() should have returned %s, found [%s]", i, expected, token)
+		}
+		if len(buf) > 0 {
+			buf = buf[1:]
+		}
+	}
+	buf = []byte(`1 o.`)
+	for i, expected := range expectedValues {
+		token := Peek(buf)
+		if bytes.Equal([]byte(expected), token.Value) == false {
+			t.Errorf("%d Peek() should have returned %s, found [%s]", i, expected, token)
+		}
+		if len(buf) > 0 {
+			buf = buf[1:]
+		}
+	}
+}
+
+func TestFindClosing(t *testing.T) {
+	var (
+		between         []byte
+		buf             []byte
+		err             error
+		expectedBetween []byte
+	)
+
+	buf = []byte(` { me = "Robert {nickname} Doiel", } `)
+	expectedBetween = buf[2 : len(buf)-2]
+	between, buf, err = Between([]byte("{"), []byte("}"), []byte(""), buf)
+	if err != nil {
+		t.Errorf("Between() failed, %s -> %s", err, between)
+		t.FailNow()
+	}
+	if len(expectedBetween) != len(between) {
+		t.Errorf("between wrong, expected length %d [%s], length %d found [%s]", len(expectedBetween), expectedBetween, len(between), between)
+	}
+	if bytes.Equal(expectedBetween, between) == false {
+		t.Errorf("between wrong, expected [%s], found [%s]", expectedBetween, between)
+	}
+}
