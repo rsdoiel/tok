@@ -41,7 +41,7 @@ import (
 
 const (
 	// Version of  tok package
-	Version = "0.0.0"
+	Version = "v0.0.1"
 
 	//Base token types, these are single letter tokens, no look ahead needed
 
