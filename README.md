@@ -8,6 +8,44 @@ A niave tokenizer library
 
 ## Public Interface
 
++ Backup - given a token and buffer return a new buffer with the token's value as prefix
+    + parameters
+        + Token
+        + buffer (byte array)
+    returns
+        + buffer (byte array)
++ Between - returns the value between an opening and closing delimiter values, 
+    + parameters
+        + open value (byte array)
+        + close value (byte array)
+        + escape vaue (byte array)
+        + buffer (byte array)
+    + returns
+        + between content (byte array)
+        + buffer (byte array)
+        + error value if closing value not found before end of buffer
++ Peek - returns the next token without consuming the buffer being scanned
+    + parameters
+        + buffer (byte array)
+    + returns
+        + Token
++ Skip - scans through a buffer until a token is found, returns skipped content, token and remaining buffer
+    + parameters
+        + Token
+        + buffer (byte array)
+    + returns
+        + skipped content (byte array)
+        + Token
+        + buffer (byte array)
++ Skip2 - like Skip but allows a Tokenizer to be passed in rather than using the default Tok().
+    + parameters
+        + Token
+        + buffer (byte array)
+        + Tokenizer function
+    + returns
+        + skipped content (byte array)
+        + Token
+        + buffer (byte array)
 + Token - a simple structure 
     + properties
         + Type is a string holding the label of the token type
@@ -32,6 +70,6 @@ A niave tokenizer library
     + returns
         + a Token of Type defined by the Tokenizer function
         + the remaining buffer byte array
-+ ToksWords - Is an example Tokenizer function
++ Words - Is an example Tokenizer function
     + returns tokens of type *Numeral*, *Punctuation*, *Space* and *Word*
 

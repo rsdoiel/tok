@@ -145,7 +145,7 @@ type Tokenizer func(*Token, []byte) (*Token, []byte)
 
 // String returns a human readable Token struct
 func (t *Token) String() string {
-	return fmt.Sprintf("<%s> = %q", t.Type, t.Value)
+	return fmt.Sprintf("{%q: %q}", t.Type, t.Value)
 }
 
 // IsSpace checks to see if []byte is a space or not
