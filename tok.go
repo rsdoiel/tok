@@ -240,6 +240,57 @@ func Tok2(buf []byte, fn Tokenizer) (*Token, []byte) {
 	return fn(tok, rest)
 }
 
+// Skip provides a means to advance to the next non-target Token.
+func Skip(tokenType string, buf []byte) ([]byte, *Token, []byte) {
+	var (
+		skipped []byte
+		token   *Token
+	)
+	// Handle an empty buffer gracefully
+	if len(buf) == 0 {
+		token.Type = EOF
+		token.Value = []byte("")
+		return skipped, token, buf
+	}
+	for {
+		token, buf = Tok(buf)
+		if token.Type != tokenType {
+			break
+		}
+		skipped = append(skipped[:], token.Value[:]...)
+		if len(buf) == 0 {
+			break
+		}
+	}
+
+	return skipped, token, buf
+}
+
+func Skip2(tokenType string, buf []byte, fn Tokenizer) ([]byte, *Token, []byte) {
+	var (
+		skipped []byte
+		token   *Token
+	)
+	// Handle an empty buffer gracefully
+	if len(buf) == 0 {
+		token.Type = EOF
+		token.Value = []byte("")
+		return skipped, token, buf
+	}
+	for {
+		token, buf = Tok2(buf, fn)
+		if token.Type != tokenType {
+			break
+		}
+		skipped = append(skipped[:], token.Value[:]...)
+		if len(buf) == 0 {
+			break
+		}
+	}
+
+	return skipped, token, buf
+}
+
 // Words is an example of implementing a Tokenizer function
 func Words(tok *Token, buf []byte) (*Token, []byte) {
 	if tok.Type == Letter || tok.Type == Word {

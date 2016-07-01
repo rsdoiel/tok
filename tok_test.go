@@ -34,7 +34,7 @@
 package tok
 
 import (
-	//"fmt"
+	"bytes"
 	"io/ioutil"
 	"path"
 	"strings"
@@ -82,7 +82,6 @@ func TestTok(t *testing.T) {
 	)
 	for i, expectedType := range expected {
 		token, src1 = Tok(src1)
-		// fmt.Printf("DEBUG i: %d, token: %s, expectedType: %s, src1: %s\n", i, token, expectedType, src1)
 		if strings.Compare(token.Type, strings.TrimSpace(expectedType)) != 0 {
 			t.Errorf("%d: %s != %s", i, token, expectedType)
 		}
@@ -98,7 +97,6 @@ func TestTok(t *testing.T) {
 			// This is just a pass through function, normally you'd add additional analysis
 			return t, b
 		})
-		// fmt.Printf("DEBUG i: %d, token: %s, expectedType: %s, src1: %s\n", i, token, expectedType, src1)
 		if strings.Compare(token.Type, strings.TrimSpace(expectedType)) != 0 {
 			t.Errorf("%d: %s != %s", i, token, expectedType)
 		}
@@ -106,6 +104,60 @@ func TestTok(t *testing.T) {
 	if len(src1) != 0 {
 		t.Errorf("Expected to have len(src1) == 1, %d [%s]", i, src1)
 	}
+}
+
+func TestSkip(t *testing.T) {
+	var (
+		skipped []byte
+		buf     []byte
+		token   *Token
+	)
+	buf = []byte(`
+word 1 1.0		{fred}
+`)
+	expected := []string{
+		Letter,
+		Letter,
+		Letter,
+		Letter,
+		Numeral,
+		Numeral,
+		Punctuation,
+		Numeral,
+		Punctuation,
+		Letter,
+		Letter,
+		Letter,
+		Letter,
+		Punctuation,
+	}
+
+	for i, expectedType := range expected {
+		skipped, token, buf = Skip(Space, buf)
+		if len(buf) == 0 {
+			t.Errorf("tok no. %d: buf empty too soon skipped -> [%s], token -> %s", i, skipped, token)
+			break
+		}
+		if token.Type != expectedType {
+			t.Errorf("tok no. %d: skipped -> [%s], expected %s, found %s", i, skipped, expectedType, token.Type)
+		}
+	}
+	if len(buf) != 1 {
+		t.Errorf("Expected a a single LF in buf, length %d -> [%s]", len(buf), buf)
+	}
+	if bytes.Equal(buf, []byte("\n")) != true {
+		t.Errorf("Expected single LF in buf -> [%s]", buf)
+		t.FailNow()
+	}
+
+	token, buf = Tok(buf)
+	if token.Type != Space {
+		t.Errorf("Expected a final LF, %s -> [%s]", token.Type, token.Value)
+	}
+	if len(buf) != 0 {
+		t.Errorf("Expected an empty buf, length %d -> [%s]", len(buf), buf)
+	}
+
 }
 
 func TestWords(t *testing.T) {
@@ -136,5 +188,62 @@ func TestWords(t *testing.T) {
 	}
 	if len(src1) != 0 {
 		t.Errorf("Expected to have len(src1) == 1, %d [%s]", i, src1)
+	}
+}
+
+func TestSkip2(t *testing.T) {
+	var (
+		skipped []byte
+		buf     []byte
+		token   *Token
+	)
+	buf = []byte(`
+word 1 1.0		{fred}
+`)
+	expected := []string{
+		Letter,
+		Letter,
+		Letter,
+		Letter,
+		Numeral,
+		Numeral,
+		Punctuation,
+		Numeral,
+		Punctuation,
+		Letter,
+		Letter,
+		Letter,
+		Letter,
+		Punctuation,
+	}
+
+	nullTokenizer := func(token *Token, buf []byte) (*Token, []byte) {
+		return token, buf
+	}
+
+	for i, expectedType := range expected {
+		skipped, token, buf = Skip2(Space, buf, nullTokenizer)
+		if len(buf) == 0 {
+			t.Errorf("tok no. %d: buf empty too soon skipped -> [%s], token -> %s", i, skipped, token)
+			break
+		}
+		if token.Type != expectedType {
+			t.Errorf("tok no. %d: skipped -> [%s], expected %s, found %s", i, skipped, expectedType, token.Type)
+		}
+	}
+	if len(buf) != 1 {
+		t.Errorf("Expected a a single LF in buf, length %d -> [%s]", len(buf), buf)
+	}
+	if bytes.Equal(buf, []byte("\n")) != true {
+		t.Errorf("Expected single LF in buf -> [%s]", buf)
+		t.FailNow()
+	}
+
+	token, buf = Tok(buf)
+	if token.Type != Space {
+		t.Errorf("Expected a final LF, %s -> [%s]", token.Type, token.Value)
+	}
+	if len(buf) != 0 {
+		t.Errorf("Expected an empty buf, length %d -> [%s]", len(buf), buf)
 	}
 }
