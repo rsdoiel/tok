@@ -291,6 +291,11 @@ func Skip2(tokenType string, buf []byte, fn Tokenizer) ([]byte, *Token, []byte) 
 	return skipped, token, buf
 }
 
+// Backup pushes a Token back onto the front of a Buffer
+func Backup(token *Token, buf []byte) []byte {
+	return append(token.Value[:], buf[:]...)
+}
+
 // Words is an example of implementing a Tokenizer function
 func Words(tok *Token, buf []byte) (*Token, []byte) {
 	if tok.Type == Letter || tok.Type == Word {

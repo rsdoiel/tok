@@ -247,3 +247,24 @@ word 1 1.0		{fred}
 		t.Errorf("Expected an empty buf, length %d -> [%s]", len(buf), buf)
 	}
 }
+
+func TestBackup(t *testing.T) {
+	buf := []byte("12")
+	token, buf := Tok(buf)
+	if token.Type != Numeral {
+		t.Errorf("Should have gotten a numeral for first token: [%s]", token.Type)
+		t.FailNow()
+	}
+	if len(buf) != 1 {
+		t.Errorf("Should have a buffer of length 1, %d -> [%s]", len(buf), buf)
+		t.FailNow()
+	}
+	buf = Backup(token, buf)
+	if len(buf) != 2 {
+		t.Errorf("Should have a buffer of length 2, %d -> [%s]", len(buf), buf)
+		t.FailNow()
+	}
+	if bytes.Equal(buf, []byte("12")) != true {
+		t.Errorf("Buffer should be restored to \"12\", length %d -> [%s]", len(buf), buf)
+	}
+}
