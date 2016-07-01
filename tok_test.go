@@ -304,7 +304,7 @@ func TestPeek(t *testing.T) {
 	}
 }
 
-func TestFindClosing(t *testing.T) {
+func TestBetween(t *testing.T) {
 	var (
 		between         []byte
 		buf             []byte
@@ -317,6 +317,20 @@ func TestFindClosing(t *testing.T) {
 	between, buf, err = Between([]byte("{"), []byte("}"), []byte(""), buf)
 	if err != nil {
 		t.Errorf("Between() failed, %s -> %s", err, between)
+		t.FailNow()
+	}
+	if len(expectedBetween) != len(between) {
+		t.Errorf("between wrong, expected length %d [%s], length %d found [%s]", len(expectedBetween), expectedBetween, len(between), between)
+	}
+	if bytes.Equal(expectedBetween, between) == false {
+		t.Errorf("between wrong, expected [%s], found [%s]", expectedBetween, between)
+	}
+
+	buf = []byte(`this is a "quoted" string`)
+	expectedBetween = []byte("quoted")
+	between, buf, err = Between([]byte("\""), []byte("\""), []byte(""), buf)
+	if err != nil {
+		t.Errorf("Between() failed, %s -> [%s]", err, between)
 		t.FailNow()
 	}
 	if len(expectedBetween) != len(between) {

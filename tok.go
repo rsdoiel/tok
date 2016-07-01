@@ -333,8 +333,10 @@ func Between(openValue []byte, closeValue []byte, escapeValue []byte, buf []byte
 		between        []byte
 		hasEscapeValue bool
 		token          *Token
+		isQuote        bool
 	)
 
+	isQuote = bytes.Equal(openValue, closeValue)
 	if len(escapeValue) > 0 {
 		hasEscapeValue = true
 	}
@@ -354,6 +356,18 @@ func Between(openValue []byte, closeValue []byte, escapeValue []byte, buf []byte
 			between = append(between[:], token.Value[:]...)
 			token, buf = Tok(buf)
 			between = append(between[:], token.Value[:]...)
+		case isQuote == true && bytes.Equal(openValue, token.Value):
+			if quoteCount == 0 {
+				quoteCount++
+			} else {
+				quoteCount--
+			}
+			if quoteCount > 1 {
+				between = append(between[:], token.Value[:]...)
+			}
+			if quoteCount == 0 {
+				return between, buf, nil
+			}
 		case bytes.Equal(openValue, token.Value):
 			quoteCount++
 			if quoteCount > 1 {
