@@ -355,6 +355,7 @@ fix and six
 		[]byte(`fix and six`),
 		[]byte(`.`),
 	}
+	var nl []byte
 
 	OK := func(i int, expected, found []byte) bool {
 		if bytes.Compare(expected, found) != 0 {
@@ -365,7 +366,7 @@ fix and six
 	}
 
 	for i, exp := range expected {
-		nl, sample := NextLine(sample)
+		nl, sample = NextLine(sample)
 		OK(i, exp, nl)
 	}
 }

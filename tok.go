@@ -37,6 +37,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"regexp"
 )
 
 const (
@@ -406,4 +407,21 @@ func Words(tok *Token, buf []byte) (*Token, []byte) {
 		}
 	}
 	return tok, buf
+}
+
+// Next splits a buffer once at the first matching []byte encountered
+// and returns a next []byte requested and remained []byte.
+func Next(buf []byte, delim string) ([]byte, []byte) {
+	re := regexp.MustCompile(delim)
+	loc := re.FindIndex(buf)
+	if loc != nil {
+		return buf[0:loc[0]], buf[loc[1]:]
+	}
+	return buf, nil
+}
+
+// NextLine splits a buffer once at the first \n encountered
+// returns the next "line" requested and the remained buf as []byte
+func NextLine(buf []byte) ([]byte, []byte) {
+	return Next(buf, `(\n|\n\r|\r\n)`)
 }
