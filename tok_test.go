@@ -340,3 +340,32 @@ func TestBetween(t *testing.T) {
 		t.Errorf("between wrong, expected [%s], found [%s]", expectedBetween, between)
 	}
 }
+
+func TestNextLine(t *testing.T) {
+	sample := []byte(`one
+two and three
+four
+fix and six
+.
+`)
+	expected := [][]byte{
+		[]byte(`one`),
+		[]byte(`two and three`),
+		[]byte(`four`),
+		[]byte(`fix and six`),
+		[]byte(`.`),
+	}
+
+	OK := func(i int, expected, found []byte) bool {
+		if bytes.Compare(expected, found) != 0 {
+			t.Errorf("Expected %q, found %q", expected, found)
+			return false
+		}
+		return true
+	}
+
+	for i, exp := range expected {
+		nl, sample := NextLine(sample)
+		OK(i, exp, nl)
+	}
+}
